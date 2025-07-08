@@ -5,6 +5,7 @@ from typing import List, Optional
 @dataclass
 class Response:
     response: List[str]
+    reasoning_content: Optional[List[str]] = None
     num_completion_tokens: List[int]
     num_input_tokens: int
     index: Optional[int] = None
@@ -54,6 +55,10 @@ class Response:
                 response.choices[i].message.content
                 for i in range(len(response.choices))
             ],
+            reasoning_content=[
+                getattr(response.choices[i].message, "reasoning_content", None)
+                for i in range(len(response.choices))
+            ],
             num_completion_tokens=[
                 response.usage.completion_tokens if i == 0 else 0
                 for i in range(len(response.choices))
@@ -90,10 +95,12 @@ class SingleParsedResponse:
     content: str
     correctness: Optional[bool] = None
     reason: Optional[str] = None
+    reasoning_content: Optional[str] = None
 
     def to_dict(self):
         return {
             "content": self.content,
             "correctness": self.correctness,
             "reason": self.reason,
+            "reasoning_content": self.reasoning_content,
         }
