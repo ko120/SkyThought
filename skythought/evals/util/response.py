@@ -4,9 +4,17 @@ from typing import List, Optional
 
 @dataclass
 class Response:
+    """Aggregate response information from a model backend."""
+
+    # Text for each generated sample
     response: List[str]
+    # Token counts for the corresponding completions
     num_completion_tokens: List[int]
+    # Number of tokens in the input prompt
     num_input_tokens: int
+    # Optional reasoning content provided by the backend, one entry per sample
+    reasoning_content: Optional[List[str]] = None
+    # Optional index of the request within the dataset
     index: Optional[int] = None
 
     @classmethod
@@ -59,6 +67,10 @@ class Response:
                 for i in range(len(response.choices))
             ],
             num_input_tokens=response.usage.prompt_tokens,
+            reasoning_content=[
+                getattr(response.choices[i].message, "reasoning_content", None)
+                for i in range(len(response.choices))
+            ],
         )
 
     @classmethod
@@ -90,10 +102,12 @@ class SingleParsedResponse:
     content: str
     correctness: Optional[bool] = None
     reason: Optional[str] = None
+    reasoning_content: Optional[str] = None
 
     def to_dict(self):
         return {
             "content": self.content,
             "correctness": self.correctness,
             "reason": self.reason,
+            "reasoning_content": self.reasoning_content,
         }

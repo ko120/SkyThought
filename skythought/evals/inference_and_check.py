@@ -138,7 +138,13 @@ def _parse_response_for_idx(
     sample_idx: int,
 ) -> Tuple[SingleParsedResponse, Dict[str, int]]:
     content = response.response[sample_idx].strip()
-    response_entry = SingleParsedResponse(content=content)
+    reasoning = None
+    if (
+        response.reasoning_content is not None
+        and len(response.reasoning_content) > sample_idx
+    ):
+        reasoning = response.reasoning_content[sample_idx]
+    response_entry = SingleParsedResponse(content=content, reasoning_content=reasoning)
 
     token_usage_for_response = {
         "completion_tokens": response.num_completion_tokens[sample_idx],
